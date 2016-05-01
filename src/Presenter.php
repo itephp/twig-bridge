@@ -55,7 +55,6 @@ class Presenter implements PresenterInterface{
 
 	private function displaySuccess(Response $response){
 		$presenterConfig=$this->config->getPresenter();
-		\Twig_Autoloader::register();
 		$loader = new \Twig_Loader_Filesystem(__DIR__.'/../../../../template'); //TODO przekazywać do presentera config
 		$twig = new \Twig_Environment($loader);
 
@@ -79,7 +78,6 @@ class Presenter implements PresenterInterface{
 
 	private function displayError(Response $response){
 		$presenterConfig=$this->config->getPresenter();
-		\Twig_Autoloader::register();
 		$loader = new \Twig_Loader_Filesystem(__DIR__.'/../../../../template'); //TODO przekazywać do presentera config
 		$twig = new \Twig_Environment($loader);
 		$exception=$response->getContent();
