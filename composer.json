@@ -1,6 +1,6 @@
 {
-    "name": "itephp/doctrine-bridge",
-    "description": "The ItePHP Doctrin bridge.",
+    "name": "itephp/twig-bridge",
+    "description": "The ItePHP Twig bridge.",
     "type": "library",
     "license": "MIT",
     "authors": [
@@ -11,10 +11,10 @@
     ],
     "require": {
         "php": ">=5.4.0"
-        ,"doctrine/orm": "^2.5"
-        },
+        ,"twig/twig": "^v1.24"
+    },
     "autoload": {
-        "psr-4": { "ItePHP\\Doctrine\\": "src" }
+        "psr-4": { "ItePHP\\Twig\\": "src" }
     },
     "minimum-stability": "dev"
 }
