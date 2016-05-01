@@ -23,7 +23,6 @@ class Service{
 	private $engine;
 
 	public function __construct(ServiceConfig $serviceConfig,EventManager $eventManager){
-		\Twig_Autoloader::register();
 		$loader = new \Twig_Loader_Filesystem(__DIR__.'/../../../../template');
 		$this->engine = new \Twig_Environment($loader);
 
