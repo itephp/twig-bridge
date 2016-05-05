@@ -21,8 +21,19 @@ use ItePHP\Contener\RequestConfig;
 
 class Presenter implements PresenterInterface{
 
+	/**
+	 * @var \Twig\Environment $twig
+	 */
+	private $twig;
+
+    /**
+     * {@inheritdoc}
+     */
 	public function render(RequestConfig $requestConfig , Response $response){
 		$this->config=$requestConfig;
+
+		$this->initEngine($response);
+
 		if(!$requestConfig->isSilent()){
 			header('HTTP/1.1 '.$response->getStatusCode().' '.$response->getStatusMessage());
 			foreach($response->getHeaders() as $name=>$value){
@@ -48,18 +59,17 @@ class Presenter implements PresenterInterface{
 		}
 	}
 
-	private function redirect(Response $response){
-		if(!$this->config->isSilent())
-			header('Location: '.$response->getHeader('location'));
-	}
-
-	private function displaySuccess(Response $response){
-		$presenterConfig=$this->config->getPresenter();
-		$loader = new \Twig_Loader_Filesystem(__DIR__.'/../../../../template'); //TODO przekazywać do presentera config
-		$twig = new \Twig_Environment($loader);
+	/**
+	 * Init twig.
+	 *
+	 * @param \ItePHP\Provider\Response $response
+	 */
+	private function initEngine($response){
+		$loader = new \Twig_Loader_Filesystem(ITE_ROOT.'/template');
+		$this->twig = new \Twig_Environment($loader);
 
 		$data=$response->getContent();
-		$extensionDir=__DIR__.'/../../../../twig/extension';
+		$extensionDir=ITE_SRC.'/Twig/Extension';
 		if(file_exists($extensionDir)){
 			$hDir=opendir($extensionDir);
 			while($file=readdir($hDir)){
@@ -67,19 +77,42 @@ class Presenter implements PresenterInterface{
 					continue;
 				}
 				$objName='\Twig\Extension\\'.pathinfo($file, PATHINFO_FILENAME);
-				$twig->addExtension(new $objName($data));
+				$this->twig->addExtension(new $objName($data));
 			}
-			
-		}
 
-		echo $twig->render($this->config->getController().'/'.$this->config->getMethod().'.twig', $data);
+			closedir($hDir);			
+		}
 
 	}
 
+	/**
+	 * Support status code 3XX.
+	 *
+	 * @param \ItePHP\Provider\Response $response
+	 */
+	private function redirect(Response $response){
+		if(!$this->config->isSilent())
+			header('Location: '.$response->getHeader('location'));
+	}
+
+	/**
+	 * Support status code 2XX.
+	 *
+	 * @param \ItePHP\Provider\Response $response
+	 */
+	private function displaySuccess(Response $response){
+		$data=$response->getContent();
+
+		echo $this->twig->render($this->config->getController().'/'.$this->config->getMethod().'.twig', $data);
+
+	}
+
+	/**
+	 * Support status code 4XX-5XX.
+	 *
+	 * @param \ItePHP\Provider\Response $response
+	 */
 	private function displayError(Response $response){
-		$presenterConfig=$this->config->getPresenter();
-		$loader = new \Twig_Loader_Filesystem(__DIR__.'/../../../../template'); //TODO przekazywać do presentera config
-		$twig = new \Twig_Environment($loader);
 		$exception=$response->getContent();
 
 		$data=array(
@@ -91,25 +124,10 @@ class Presenter implements PresenterInterface{
 			);
 
 		if($this->config->isDebug())
-			echo $twig->render('error.twig', $data);
+			echo $this->twig->render('error.twig', $data);
 		else
-			echo $twig->render($response->getStatusCode().'.twig');
+			echo $this->twig->render($response->getStatusCode().'.twig');
 
-	}
-
-
-	private function createIsAllowFunction($functionalities){
-		return new \Twig_SimpleFunction('isAllow', function ($requireFunctionalities) use($functionalities){
-			if(!is_array($requireFunctionalities))
-				$requireFunctionalities=array($requireFunctionalities);
-			foreach($requireFunctionalities as $requireFunctionality){
-				if(in_array($requireFunctionality , $functionalities)){
-					return true;
-				}
-			}
-			return false;
-
-		});
 	}
 
 }

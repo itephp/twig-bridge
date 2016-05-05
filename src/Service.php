@@ -20,16 +20,39 @@ use ItePHP\Core\EventManager;
 
 class Service{
 	
-	private $engine;
-
+	/**
+	 *
+	 * @param ServiceConfig $serviceConfig
+	 * @param EventManager @eventManager
+	 */
 	public function __construct(ServiceConfig $serviceConfig,EventManager $eventManager){
-		$loader = new \Twig_Loader_Filesystem(__DIR__.'/../../../../template');
-		$this->engine = new \Twig_Environment($loader);
-
 	}
 
+	/**
+	 * Render view.
+	 *
+	 * @param string $template
+	 * @param array $data
+	 */
 	public function render($template,$data){
-		return $this->engine->render($template, $data);
+		$loader = new \Twig_Loader_Filesystem(ITE_ROOT.'/template');
+		$twig = new \Twig_Environment($loader);
+
+		$extensionDir=ITE_SRC.'/Twig/Extension';
+		if(file_exists($extensionDir)){
+			$hDir=opendir($extensionDir);
+			while($file=readdir($hDir)){
+				if($file=='.' || $file=='..'){
+					continue;
+				}
+				$objName='\Twig\Extension\\'.pathinfo($file, PATHINFO_FILENAME);
+				$this->twig->addExtension(new $objName($data));
+			}
+
+			closedir($hDir);			
+		}
+
+		return $twig->render($template, $data);
 	}
 
 }
