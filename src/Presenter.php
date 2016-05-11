@@ -102,6 +102,9 @@ class Presenter implements PresenterInterface{
 	 */
 	private function displaySuccess(Response $response){
 		$data=$response->getContent();
+		if($data==null){
+			$data=array();
+		}
 
 		echo $this->twig->render($this->config->getController().'/'.$this->config->getMethod().'.twig', $data);
 

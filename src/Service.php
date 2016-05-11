@@ -46,7 +46,7 @@ class Service{
 					continue;
 				}
 				$objName='\Twig\Extension\\'.pathinfo($file, PATHINFO_FILENAME);
-				$this->twig->addExtension(new $objName($data));
+				$twig->addExtension(new $objName($data));
 			}
 
 			closedir($hDir);			
