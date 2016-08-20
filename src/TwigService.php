@@ -16,16 +16,23 @@
 namespace ItePHP\Twig;
 
 use ItePHP\Contener\ServiceConfig;
-use ItePHP\Core\EventManager;
 
-class Service{
-	
+use ItePHP\Core\Enviorment;
+
+class TwigService{
+
 	/**
 	 *
-	 * @param ServiceConfig $serviceConfig
-	 * @param EventManager @eventManager
+	 * @var Enviorment
 	 */
-	public function __construct(ServiceConfig $serviceConfig,EventManager $eventManager){
+	private $enviorment;
+
+	/**
+	 *
+	 * @param Enviorment $enviorment
+	 */
+	public function __construct(Enviorment $enviorment){
+		$this->enviorment=$enviorment;
 	}
 
 	/**
@@ -33,12 +40,13 @@ class Service{
 	 *
 	 * @param string $template
 	 * @param array $data
+	 * @return string
 	 */
 	public function render($template,$data){
-		$loader = new \Twig_Loader_Filesystem(ITE_ROOT.'/template');
+		$loader = new \Twig_Loader_Filesystem($this->enviorment->getRootPath().'/template');
 		$twig = new \Twig_Environment($loader);
 
-		$extensionDir=ITE_SRC.'/Twig/Extension';
+		$extensionDir=$this->enviorment->getSrcPath().'/Twig/Extension';
 		if(file_exists($extensionDir)){
 			$hDir=opendir($extensionDir);
 			while($file=readdir($hDir)){
