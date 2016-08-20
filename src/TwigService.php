@@ -42,7 +42,7 @@ class TwigService{
 	 * @param array $data
 	 * @return string
 	 */
-	public function render($template,$data){
+	public function render($template,$data=[]){
 		$loader = new \Twig_Loader_Filesystem($this->enviorment->getRootPath().'/template');
 		$twig = new \Twig_Environment($loader);
 
