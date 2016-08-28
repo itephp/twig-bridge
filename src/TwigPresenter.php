@@ -15,11 +15,15 @@
 
 namespace ItePHP\Twig;
 
+use ItePHP\Core\Environment;
 use ItePHP\Core\Presenter;
 use ItePHP\Core\Response;
 use ItePHP\Core\Request;
-use ItePHP\Core\Enviorment;
 
+/**
+ * Class TwigPresenter
+ * @package ItePHP\Twig
+ */
 class TwigPresenter implements Presenter{
 
 	/**
@@ -29,30 +33,29 @@ class TwigPresenter implements Presenter{
 
 	/**
 	 *
-	 * @var Enviorment
+	 * @var Environment
 	 */
-	private $enviorment;
+	private $environment;
 
-	/**
-	 *
-	 * @param Enviorment $enviorment
-	 */
-	public function __construct(Enviorment $enviorment){
-		$this->enviorment=$enviorment;
+    /**
+     *
+     * @param Environment $environment
+     */
+	public function __construct(Environment $environment){
+		$this->environment=$environment;
 	}
 
     /**
      * {@inheritdoc}
      */
 	public function render(Request $request , Response $response){
-		$this->twig=new TwigService($this->enviorment);
-		if(!$this->enviorment->isSilent()){
+		$this->twig=new TwigService($this->environment);
+		if(!$this->environment->isSilent()){
 			header('HTTP/1.1 '.$response->getStatusCode().' '.$response->getStatusMessage());
 			foreach($response->getHeaders() as $name=>$value){
 				header($name.': '.$value);
 			}			
 		}
-
 
 		switch($response->getStatusCode()){
 			case 300:
@@ -73,13 +76,11 @@ class TwigPresenter implements Presenter{
 		}
 	}
 
-	/**
-	 * Support status code 3XX.
-	 *
-	 * @param \ItePHP\Provider\Response $response
-	 */
+    /**
+     * @param Response $response
+     */
 	private function redirect(Response $response){
-		if($this->enviorment->isSilent()){
+		if($this->environment->isSilent()){
 			return;
 		}
 		header('Location: '.$response->getHeader('location'));
@@ -118,7 +119,7 @@ class TwigPresenter implements Presenter{
 			,'line'=>$exception->getLine()
 			);
 
-		if($this->enviorment->isDebug()){
+		if($this->environment->isDebug()){
 			echo $this->twig->render('error.twig', $data);			
 		}
 		else{

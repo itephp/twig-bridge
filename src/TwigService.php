@@ -15,38 +15,40 @@
 
 namespace ItePHP\Twig;
 
-use ItePHP\Contener\ServiceConfig;
+use ItePHP\Core\Environment;
 
-use ItePHP\Core\Enviorment;
-
+/**
+ * Class TwigService
+ * @package ItePHP\Twig
+ */
 class TwigService{
 
 	/**
 	 *
-	 * @var Enviorment
+	 * @var Environment
 	 */
-	private $enviorment;
+	private $environment;
 
-	/**
-	 *
-	 * @param Enviorment $enviorment
-	 */
-	public function __construct(Enviorment $enviorment){
-		$this->enviorment=$enviorment;
+    /**
+     * TwigService constructor.
+     * @param Environment $environment
+     */
+	public function __construct(Environment $environment){
+		$this->environment=$environment;
 	}
 
 	/**
 	 * Render view.
 	 *
 	 * @param string $template
-	 * @param array $data
+	 * @param mixed[] $data
 	 * @return string
 	 */
 	public function render($template,$data=[]){
-		$loader = new \Twig_Loader_Filesystem($this->enviorment->getRootPath().'/template');
+		$loader = new \Twig_Loader_Filesystem($this->environment->getRootPath().'/template');
 		$twig = new \Twig_Environment($loader);
 
-		$extensionDir=$this->enviorment->getSrcPath().'/Twig/Extension';
+		$extensionDir=$this->environment->getSrcPath().'/Twig/Extension';
 		if(file_exists($extensionDir)){
 			$hDir=opendir($extensionDir);
 			while($file=readdir($hDir)){
