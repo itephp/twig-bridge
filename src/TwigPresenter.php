@@ -26,105 +26,105 @@ use ItePHP\Core\Request;
  */
 class TwigPresenter implements Presenter{
 
-	/**
-	 * @var \Twig_Environment $twig
-	 */
-	private $twig;
+    /**
+     * @var \Twig_Environment $twig
+     */
+    private $twig;
 
-	/**
-	 *
-	 * @var Environment
-	 */
-	private $environment;
+    /**
+     *
+     * @var Environment
+     */
+    private $environment;
 
     /**
      *
      * @param Environment $environment
      */
-	public function __construct(Environment $environment){
-		$this->environment=$environment;
-	}
+    public function __construct(Environment $environment){
+        $this->environment=$environment;
+    }
 
     /**
      * {@inheritdoc}
      */
-	public function render(Request $request , Response $response){
-		$this->twig=new TwigService($this->environment);
-		if(!$this->environment->isSilent()){
-			header('HTTP/1.1 '.$response->getStatusCode().' '.$response->getStatusMessage());
-			foreach($response->getHeaders() as $name=>$value){
-				header($name.': '.$value);
-			}			
-		}
+    public function render(Request $request , Response $response){
+        $this->twig=new TwigService($this->environment);
+        if(!$this->environment->isSilent()){
+            header('HTTP/1.1 '.$response->getStatusCode().' '.$response->getStatusMessage());
+            foreach($response->getHeaders() as $name=>$value){
+                header($name.': '.$value);
+            }
+        }
 
-		switch($response->getStatusCode()){
-			case 300:
-			case 301:
-			case 302:
-			case 303:
-			case 305:
-			case 307:
-				$this->redirect($response);
-			break;
-			default:
-				if($response->getStatusCode()>=400){
-					$this->displayError($request,$response);					
-				}
-				else{
-					$this->displaySuccess($request,$response);					
-				}
-		}
-	}
+        switch($response->getStatusCode()){
+            case 300:
+            case 301:
+            case 302:
+            case 303:
+            case 305:
+            case 307:
+                $this->redirect($response);
+                break;
+            default:
+                if($response->getStatusCode()>=400){
+                    $this->displayError($request,$response);
+                }
+                else{
+                    $this->displaySuccess($request,$response);
+                }
+        }
+    }
 
     /**
      * @param Response $response
      */
-	private function redirect(Response $response){
-		if($this->environment->isSilent()){
-			return;
-		}
-		header('Location: '.$response->getHeader('location'));
-	}
+    private function redirect(Response $response){
+        if($this->environment->isSilent()){
+            return;
+        }
+        header('Location: '.$response->getHeader('location'));
+    }
 
-	/**
-	 * Support status code 2XX.
-	 *
-	 * @param Request $request
-	 * @param Response $response
-	 */
-	private function displaySuccess(Request $request,Response $response){
-		$data=$response->getContent();
-		if($data==null){
-			$data=array();
-		}
-		$controllerName=str_replace('\\', '/', $request->getConfig()->getAttribute('class'));
-		$methodName=$request->getConfig()->getAttribute('method');
-		echo $this->twig->render($controllerName.'/'.$methodName.'.twig', $data);
-	}
+    /**
+     * Support status code 2XX.
+     *
+     * @param Request $request
+     * @param Response $response
+     */
+    private function displaySuccess(Request $request,Response $response){
+        $data=$response->getContent();
+        if($data==null){
+            $data=array();
+        }
+        $controllerName=str_replace('\\', '/', $request->getConfig()->getValue('class'));
+        $methodName=$request->getConfig()->getValue('method');
+        echo $this->twig->render($controllerName.'/'.$methodName.'.twig', $data);
+    }
 
-	/**
-	 * Support status code 4XX-5XX.
-	 *
-	 * @param Request $request
-	 * @param Response $response
-	 */
-	private function displayError(Request $request,Response $response){
-		$exception=$response->getContent();
+    /**
+     * Support status code 4XX-5XX.
+     *
+     * @param Request $request
+     * @param Response $response
+     */
+    private function displayError(Request $request,Response $response){
+        $exception=$response->getContent();
 
-		$data=array(
-			'statusCode'=>$response->getStatusCode()
-			,'message'=>$exception->getMessage()
-			,'exception'=>get_class($exception)
-			,'file'=>$exception->getFile()
-			,'line'=>$exception->getLine()
-			);
+        $data=array(
+            'statusCode'=>$response->getStatusCode()
+        ,'message'=>$exception->getMessage()
+        ,'exception'=>get_class($exception)
+        ,'file'=>$exception->getFile()
+        ,'line'=>$exception->getLine()
+        );
 
-		if($this->environment->isDebug()){
-			echo $this->twig->render('error.twig', $data);			
-		}
-		else{
-			echo $this->twig->render($response->getStatusCode().'.twig');			
-		}
-	}
+        if($this->environment->isDebug()){
+            echo $this->twig->render('error.twig', $data);
+        }
+        else{
+            echo $this->twig->render($response->getStatusCode().'.twig');
+        }
+    }
 
 }
