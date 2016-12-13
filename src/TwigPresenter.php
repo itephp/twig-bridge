@@ -97,8 +97,8 @@ class TwigPresenter implements Presenter{
         if($data==null){
             $data=array();
         }
-        $controllerName=str_replace('\\', '/', $request->getConfig()->getValue('class'));
-        $methodName=$request->getConfig()->getValue('method');
+        $controllerName=str_replace('\\', '/', $request->getConfig()->getClass());
+        $methodName=$request->getConfig()->getMethod();
         echo $this->twig->render($controllerName.'/'.$methodName.'.twig', $data);
     }
 
